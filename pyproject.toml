@@ -1,0 +1,70 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bring-shopping-llm"
+version = "1.0.0"
+description = "Bring shopping-list service, CLI, and local MCP server."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+dependencies = [
+  "aiohttp>=3.13,<4",
+  "bring-api==1.1.2",
+  "mcp>=1.27,<2",
+  "pydantic>=2.11,<3",
+  "python-dotenv>=1.0,<2",
+]
+
+[project.optional-dependencies]
+dev = [
+  "mypy>=1.15,<2",
+  "pip-audit>=2.9,<3",
+  "pre-commit>=4.2,<5",
+  "pytest>=9.0.3,<10",
+  "pytest-cov>=6,<8",
+  "ruff>=0.11,<1",
+]
+
+[project.scripts]
+bring-shopping = "bring_shopping.cli:main"
+bring-shopping-mcp = "bring_shopping.mcp_server:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+bring_shopping = ["py.typed"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["B", "E", "F", "I", "RUF", "UP"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+files = ["src", "tests"]
+mypy_path = "src"
+explicit_package_bases = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-ra --cov=bring_shopping --cov-report=term-missing --cov-fail-under=85"
+markers = [
+  "live: opt-in contract tests against a dedicated Bring list",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["bring_shopping"]
+
+[tool.coverage.report]
+exclude_also = [
+  "if __name__ == .__main__.:",
+]
+show_missing = true
