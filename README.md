@@ -96,5 +96,6 @@ cannot import `bring_shopping`, clear an inherited filesystem flag with
 `chflags -R nohidden .venv` and reinstall the project.
 
 See [architecture](docs/architecture.md), [roadmap](docs/roadmap.md),
-[release plan](docs/release-plan.md), and [security guidance](SECURITY.md) before adding
-remote transports or voice-facing functionality.
+[release plan](docs/release-plan.md),
+[Google Nest and personal Bring setup](docs/setup-google-nest.md), and
+[security guidance](SECURITY.md) before adding remote transports or voice-facing functionality.
