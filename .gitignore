@@ -11,6 +11,16 @@ dist/
 # Virtual environments and local configuration
 .venv/
 .env
+.env.tmp.*
+deploy/state/
+.agents/
+.codex/
+AGENTS.md
+CONTEXT.md
+docs/adr/
+docs/architecture.md
+docs/release-plan.md
+docs/roadmap.md
 
 # Editors and operating systems
 .idea/

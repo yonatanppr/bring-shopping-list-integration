@@ -1,14 +1,59 @@
 # Bring Shopping Integration
 
 Python integration layer for managing [Bring!](https://www.getbring.com/en/home)
-shopping lists. Version 1 provides a tested service, CLI, and local stdio MCP server
-over the unofficial [`bring-api`](https://github.com/miaucl/bring-api) package.
+shopping lists. It provides a tested service, CLI, local stdio MCP server, and a
+self-hosted HTTPS deployment for remote MCP clients such as ChatGPT.
 
 > `bring-api` is reverse engineered and is not affiliated with Bring! Labs AG.
 > Upstream changes can break authentication or list operations. The dependency is
 > pinned until a newer release is deliberately verified.
 
-## Setup
+## Self-host with HTTPS
+
+The supported deployment runs on 64-bit macOS, Windows, and Linux—including Ubuntu and
+Raspberry Pi OS. It needs Docker Desktop or Docker Engine, a Bring account, a free personal
+Tailscale account, and a ChatGPT account that can create custom MCP apps. It needs no
+domain, public IP, port forwarding, OpenAI API key, or OpenAI API billing. Tailscale Funnel
+is available on all plans, but the free Personal plan is for personal, non-commercial use;
+check the [Tailscale plan terms](https://tailscale.com/pricing) for your use case. Docker
+Desktop is also free for personal use; larger organizations must check the
+[Docker Desktop terms](https://docs.docker.com/subscription/desktop-license/).
+
+On macOS or Linux:
+
+```bash
+git clone https://github.com/yonatanppr/bring-shopping-list-integration.git
+cd bring-shopping-list-integration
+./deploy/bootstrap.sh
+```
+
+On Windows, open Command Prompt or PowerShell:
+
+```powershell
+git clone https://github.com/yonatanppr/bring-shopping-list-integration.git
+cd bring-shopping-list-integration
+.\deploy\bootstrap.cmd
+```
+
+The guided bootstrap can install Docker after confirmation. It then:
+
+1. stores secrets in a protected `.env` (`0600` on Unix; current-user ACL on Windows);
+2. opens a one-time Tailscale browser enrollment;
+3. authenticates to Bring read-only and asks you to confirm an exact list UUID;
+4. starts the loopback-only MCP container and validates MCP initialization;
+5. enables Tailscale Funnel and prints the capability URL to enter in ChatGPT.
+
+No inbound firewall rule or host port is required. Only the unguessable URL ending in
+`/<64-hex-character-secret>/mcp` reaches MCP; every other public path returns 404. Treat
+the complete URL like a password. See the [deployment guide](docs/deployment.md) and
+[ChatGPT pilot](docs/chatgpt-pilot.md).
+
+> ChatGPT plan availability is separate from API billing. The server never calls the
+> OpenAI API, but OpenAI's current [developer-mode documentation](https://help.openai.com/en/articles/12584461)
+> does not guarantee write-capable custom MCP apps on Plus. Confirm that your ChatGPT UI
+> exposes the five tools and permits write actions before relying on the pilot.
+
+## Local Python setup
 
 Python 3.11 or newer is required.
 
@@ -45,7 +90,7 @@ bring-shopping remove "Milk" --item-uuid ITEM_UUID
 Add `--json` before the subcommand for machine-readable output. `complete` moves an
 item into Bring's recently used collection; `remove` permanently removes it.
 
-## MCP Server
+## Local stdio MCP server
 
 Run the stdio server with:
 
@@ -66,7 +111,7 @@ and one unambiguous default-list selector in its environment. The server exposes
 
 All results are structured. Mutation receipts include the MCP request ID. Adds receive a
 stable UUID, name-only completion and removal reject duplicates, and batches are limited
-to 20 items. The first release intentionally supports stdio only.
+to 20 items. The stdio and HTTPS transports expose the same tool contract.
 
 ## Development
 
@@ -95,7 +140,7 @@ On macOS, Python 3.13 skips hidden `.pth` files. If an editable install under `.
 cannot import `bring_shopping`, clear an inherited filesystem flag with
 `chflags -R nohidden .venv` and reinstall the project.
 
-See [architecture](docs/architecture.md), [roadmap](docs/roadmap.md),
-[release plan](docs/release-plan.md),
+See [deployment](docs/deployment.md),
+[ChatGPT pilot](docs/chatgpt-pilot.md),
 [Google Nest and personal Bring setup](docs/setup-google-nest.md), and
 [security guidance](SECURITY.md) before adding remote transports or voice-facing functionality.

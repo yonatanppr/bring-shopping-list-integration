@@ -1,4 +1,0 @@
-interface:
-  display_name: "Bring Shopping Integration"
-  short_description: "Build and verify the Bring shopping adapter"
-  default_prompt: "Use $bring-shopping-integration to extend the Bring shopping list integration safely."

@@ -10,10 +10,16 @@
 
 ## MCP Deployment
 
-The future MCP server is a privileged write interface. Bind it to stdio or localhost
-by default. Any remote transport must require authentication, TLS, request size and
-rate limits, and an allowlist of exposed tools. Do not expose vendor credentials as
-MCP resources or tool arguments.
+The MCP server is a privileged write interface. Local use binds to stdio. The supported
+remote deployment binds to loopback in a shared Tailscale network namespace, publishes no
+host port, and accepts only its exact capability URL through HTTPS Funnel. Request size,
+rate, burst, and concurrency are bounded. Only the five documented tools are exposed. Do
+not expose vendor credentials as MCP resources or tool arguments.
+
+The complete capability URL is a bearer credential. Do not log, screenshot, paste, or
+share it. Rotate it immediately with `deploy/rotate-capability.sh` on macOS/Linux or
+`deploy\rotate-capability.cmd` on Windows after suspected exposure.
+There is no grace period. Health and diagnostics stay private to the container namespace.
 
 Treat add as low-risk but observable. Require explicit confirmation for destructive
 bulk actions and permanent removal. Resolve ambiguous lists and duplicate item names

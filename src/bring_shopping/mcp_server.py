@@ -10,6 +10,7 @@ from bring_api.exceptions import BringException
 from mcp.server.fastmcp import Context, FastMCP
 from mcp.server.fastmcp.exceptions import ToolError
 from mcp.server.session import ServerSession
+from mcp.server.transport_security import TransportSecuritySettings
 from mcp.types import ToolAnnotations
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -155,7 +156,13 @@ def _tool_failure(
     return ToolError(f"Could not {action}: {detail}")
 
 
-def create_server(service: BringShoppingService | None = None) -> FastMCP[AppContext]:
+def create_server(
+    service: BringShoppingService | None = None,
+    *,
+    json_response: bool = False,
+    stateless_http: bool = False,
+    transport_security: TransportSecuritySettings | None = None,
+) -> FastMCP[AppContext]:
     """Build a server, optionally injecting an offline service for tests."""
 
     @asynccontextmanager
@@ -174,6 +181,9 @@ def create_server(service: BringShoppingService | None = None) -> FastMCP[AppCon
             "specification field, and read items before ambiguous completion or removal."
         ),
         lifespan=lifespan,
+        json_response=json_response,
+        stateless_http=stateless_http,
+        transport_security=transport_security,
     )
 
     @server.tool(

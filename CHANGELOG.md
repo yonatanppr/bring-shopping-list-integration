@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.0 - 2026-07-18
+
+- Add capability-protected stateless JSON Streamable HTTP while preserving stdio.
+- Add hardened multi-architecture container and Tailscale Funnel Compose deployment.
+- Add guided bootstrap, private health validation, capability rotation, and rollback update.
+- Support Docker Desktop deployments on macOS and Windows as well as Docker Engine on Linux.
+- Add a reversible ChatGPT pilot and explicit no-OpenAI-API-billing guidance.
+
 ## 1.0.0 - 2026-07-18
 
 - Add the typed Bring service and command-line diagnostics.

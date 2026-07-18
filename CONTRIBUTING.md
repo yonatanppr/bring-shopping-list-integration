@@ -24,4 +24,4 @@ for an untrusted pull request.
 2. Run all static and unit checks.
 3. Run `bring-shopping doctor` against a dedicated account.
 4. Verify add, read, complete, and remove against a non-production test list.
-5. Record any contract change in `docs/architecture.md`.
+5. Document user-visible contract changes in `CHANGELOG.md` and the relevant user guide.
