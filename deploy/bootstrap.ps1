@@ -164,7 +164,7 @@ function Start-AndExpose {
     Invoke-PrivateSmoke
     Write-Host "Enabling the public HTTPS Funnel. Tailscale may show one approval URL."
     Invoke-DockerCompose -ComposeArgs @("exec", "tailscale", "tailscale", "funnel", "--bg", "http://127.0.0.1:8000")
-    Write-ChatGptSteps (Get-Capability)
+    Write-ClientUrl (Get-Capability)
 }
 
 Assert-Platform
@@ -175,4 +175,4 @@ Connect-Tailscale
 Select-BringList
 Start-AndExpose
 Write-Host ""
-Write-Host "Setup complete. Follow docs\chatgpt-pilot.md for the reversible pilot."
+Write-Host "Setup complete. Follow docs\deployment.md to connect an MCP client."

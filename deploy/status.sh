@@ -8,4 +8,4 @@ docker_compose ps
 run_smoke
 capability=$(sed -n "s/^MCP_CAPABILITY='\([0-9a-f]\{64\}\)'$/\1/p" "${ENV_FILE}")
 [[ -n "${capability}" ]] || { printf '%s\n' 'MCP capability is missing.' >&2; exit 1; }
-print_chatgpt_steps "${capability}"
+print_client_url "${capability}"

@@ -161,7 +161,7 @@ start_and_expose() {
   # Read the just-created capability without exposing credentials or evaluating .env.
   capability=$(sed -n "s/^MCP_CAPABILITY='\([0-9a-f]\{64\}\)'$/\1/p" "${ENV_FILE}")
   [[ -n "${capability}" ]] || { printf '%s\n' 'Could not read MCP capability.' >&2; exit 1; }
-  print_chatgpt_steps "${capability}"
+  print_client_url "${capability}"
 }
 
 main() {
@@ -173,7 +173,7 @@ main() {
   enroll_tailscale
   select_list
   start_and_expose
-  printf '\nSetup complete. Follow docs/chatgpt-pilot.md for the reversible pilot.\n'
+  printf '\nSetup complete. Follow docs/deployment.md to connect an MCP client.\n'
 }
 
 if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then

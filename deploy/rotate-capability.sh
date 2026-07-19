@@ -8,5 +8,5 @@ new_capability=$(generate_capability)
 set_env MCP_CAPABILITY "${new_capability}"
 docker_compose up -d --force-recreate app
 run_smoke
-printf '%s\n' 'The old MCP URL is invalid. Reconfigure ChatGPT immediately:'
-print_chatgpt_steps "${new_capability}"
+printf '%s\n' 'The old MCP URL is invalid. Update the MCP client:'
+print_client_url "${new_capability}"

@@ -1,23 +1,15 @@
 # Bring Shopping Integration
 
-Python integration layer for managing [Bring!](https://www.getbring.com/en/home)
-shopping lists. It provides a tested service, CLI, local stdio MCP server, and a
-self-hosted HTTPS deployment for remote MCP clients such as ChatGPT.
+Manage [Bring!](https://www.getbring.com/en/home) shopping lists through a Python service,
+CLI, stdio MCP server, or self-hosted HTTPS MCP endpoint.
 
-> `bring-api` is reverse engineered and is not affiliated with Bring! Labs AG.
-> Upstream changes can break authentication or list operations. The dependency is
-> pinned until a newer release is deliberately verified.
+> `bring-api` is an unofficial client. This project pins version 1.1.2 because upstream
+> changes can break authentication and list operations.
 
-## Self-host with HTTPS
+## Deploy with Docker
 
-The supported deployment runs on 64-bit macOS, Windows, and Linux—including Ubuntu and
-Raspberry Pi OS. It needs Docker Desktop or Docker Engine, a Bring account, a free personal
-Tailscale account, and a ChatGPT account that can create custom MCP apps. It needs no
-domain, public IP, port forwarding, OpenAI API key, or OpenAI API billing. Tailscale Funnel
-is available on all plans, but the free Personal plan is for personal, non-commercial use;
-check the [Tailscale plan terms](https://tailscale.com/pricing) for your use case. Docker
-Desktop is also free for personal use; larger organizations must check the
-[Docker Desktop terms](https://docs.docker.com/subscription/desktop-license/).
+The Docker deployment supports 64-bit macOS, Windows, and Linux on AMD64 or ARM64. You
+need Docker, a Bring account, a Tailscale account, and an MCP client.
 
 On macOS or Linux:
 
@@ -27,7 +19,7 @@ cd bring-shopping-list-integration
 ./deploy/bootstrap.sh
 ```
 
-On Windows, open Command Prompt or PowerShell:
+On Windows:
 
 ```powershell
 git clone https://github.com/yonatanppr/bring-shopping-list-integration.git
@@ -35,23 +27,12 @@ cd bring-shopping-list-integration
 .\deploy\bootstrap.cmd
 ```
 
-The guided bootstrap can install Docker after confirmation. It then:
+Bootstrap stores credentials in `.env`, enrolls the Tailscale container, verifies Bring
+access, starts the MCP server, and prints the HTTPS capability URL. Protect that URL like a
+password. The deployment publishes no host port and requires no domain or port forwarding.
 
-1. stores secrets in a protected `.env` (`0600` on Unix; current-user ACL on Windows);
-2. opens a one-time Tailscale browser enrollment;
-3. authenticates to Bring read-only and asks you to confirm an exact list UUID;
-4. starts the loopback-only MCP container and validates MCP initialization;
-5. enables Tailscale Funnel and prints the capability URL to enter in ChatGPT.
-
-No inbound firewall rule or host port is required. Only the unguessable URL ending in
-`/<64-hex-character-secret>/mcp` reaches MCP; every other public path returns 404. Treat
-the complete URL like a password. See the [deployment guide](docs/deployment.md) and
-[ChatGPT pilot](docs/chatgpt-pilot.md).
-
-> ChatGPT plan availability is separate from API billing. The server never calls the
-> OpenAI API, but OpenAI's current [developer-mode documentation](https://help.openai.com/en/articles/12584461)
-> does not guarantee write-capable custom MCP apps on Plus. Confirm that your ChatGPT UI
-> exposes the five tools and permits write actions before relying on the pilot.
+Read the [deployment guide](docs/deployment.md) for client setup, updates, capability
+rotation, and troubleshooting.
 
 ## Local Python setup
 
@@ -68,7 +49,7 @@ pre-commit install
 
 Set `BRING_EMAIL` and `BRING_PASSWORD` in `.env`. A Bring account created through
 Google, Apple, or Facebook sign-in needs a Bring password before API login works.
-Use a dedicated Bring account shared onto the target list where practical.
+Use a dedicated Bring account with access to the target list where practical.
 
 Verify access without changing a list:
 
@@ -87,8 +68,8 @@ bring-shopping complete "Milk" --item-uuid ITEM_UUID
 bring-shopping remove "Milk" --item-uuid ITEM_UUID
 ```
 
-Add `--json` before the subcommand for machine-readable output. `complete` moves an
-item into Bring's recently used collection; `remove` permanently removes it.
+Add `--json` before the subcommand for machine-readable output. `complete` moves an item
+into Bring's recently used collection. `remove` deletes it.
 
 ## Local stdio MCP server
 
@@ -98,8 +79,8 @@ Run the stdio server with:
 bring-shopping-mcp
 ```
 
-Configure a local MCP host to launch that command with `BRING_EMAIL`, `BRING_PASSWORD`,
-and one unambiguous default-list selector in its environment. The server exposes:
+Configure an MCP client to launch that command with `BRING_EMAIL`, `BRING_PASSWORD`, and
+one unambiguous default-list selector in its environment. The server exposes:
 
 | Tool | Purpose |
 | --- | --- |
@@ -109,9 +90,8 @@ and one unambiguous default-list selector in its environment. The server exposes
 | `bring_complete_items` | Move purchase items to recently used. |
 | `bring_remove_items` | Permanently remove items when `confirm=true`. |
 
-All results are structured. Mutation receipts include the MCP request ID. Adds receive a
-stable UUID, name-only completion and removal reject duplicates, and batches are limited
-to 20 items. The stdio and HTTPS transports expose the same tool contract.
+The server returns structured results and limits batches to 20 items. Mutation receipts
+include the MCP request ID. Name-only completion and removal reject duplicate matches.
 
 ## Development
 
@@ -136,11 +116,5 @@ python -m pytest -m live --no-cov
 The harness refuses the configured default list, uses unique disposable items, and runs
 cleanup after failures. Never run it against a normal shopping list.
 
-On macOS, Python 3.13 skips hidden `.pth` files. If an editable install under `.venv`
-cannot import `bring_shopping`, clear an inherited filesystem flag with
-`chflags -R nohidden .venv` and reinstall the project.
-
-See [deployment](docs/deployment.md),
-[ChatGPT pilot](docs/chatgpt-pilot.md),
-[Google Nest and personal Bring setup](docs/setup-google-nest.md), and
-[security guidance](SECURITY.md) before adding remote transports or voice-facing functionality.
+See [Security](SECURITY.md) before exposing the HTTPS transport and
+[Contributing](CONTRIBUTING.md) before submitting changes.

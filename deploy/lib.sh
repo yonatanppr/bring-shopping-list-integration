@@ -85,7 +85,7 @@ run_smoke() {
   printf '%s\n' "${output}"
 }
 
-print_chatgpt_steps() {
+print_client_url() {
   local capability=$1 base_url
   base_url=$(public_base_url)
   if [[ -z "${base_url}" ]]; then
@@ -94,9 +94,6 @@ print_chatgpt_steps() {
     printf '%s\n' 'Then rerun deploy/status.sh.'
     return
   fi
-  printf '\nChatGPT setup (developer mode):\n'
-  printf '  1. Settings -> Apps & Connectors -> Create.\n'
-  printf '  2. Use this MCP server URL: %s/%s/mcp\n' "${base_url%/}" "${capability}"
-  printf '  3. Choose No Authentication. The unguessable URL is the credential.\n'
-  printf '  4. Never paste or publish that URL anywhere else.\n'
+  printf '\nMCP server URL: %s/%s/mcp\n' "${base_url%/}" "${capability}"
+  printf '%s\n' 'The URL is a credential. Do not paste it into chat, logs, or issue reports.'
 }

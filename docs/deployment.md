@@ -1,9 +1,8 @@
-# Personal Cross-platform Deployment
+# Deployment
 
-## Scope and cost
+## Requirements
 
-This path is supported for one person, one Bring account, and personal non-commercial use
-on a 64-bit Docker host:
+Use a 64-bit Docker host on one of these platforms:
 
 - a currently supported macOS release on Intel or Apple silicon with
   [Docker Desktop](https://docs.docker.com/desktop/setup/install/mac-install/);
@@ -13,19 +12,9 @@ on a 64-bit Docker host:
 - Linux on AMD64 or ARM64 with Docker Engine and the Compose plugin, including Ubuntu and
   64-bit Raspberry Pi OS.
 
-The application and Tailscale sidecar always run as Linux containers. The published
-application image supports `linux/amd64` and `linux/arm64`; Docker Desktop supplies the
-Linux VM on macOS and Windows.
-
-The server does not use the OpenAI API, so it creates no OpenAI API usage charges. Docker
-Engine is open source. Tailscale's Personal plan is currently free for personal use and
-[Funnel is available on all plans](https://tailscale.com/docs/features/tailscale-funnel),
-but service terms and ChatGPT feature availability can change. Hardware, electricity, and
-internet access remain the operator's responsibility.
-
-Docker Desktop is free for personal use and small organizations under its current terms;
-larger enterprises may require a paid Docker subscription. This personal deployment does
-not require a paid Docker plan.
+The application and Tailscale sidecar run as Linux containers. The image supports
+`linux/amd64` and `linux/arm64`. You also need a Bring account, a Tailscale account, and an
+MCP client that accepts a remote Streamable HTTP server.
 
 The Compose sidecar is pinned to Tailscale 1.98.9, which includes the Funnel path-walking
 fix described in [TS-2026-009](https://tailscale.com/security-bulletins). Do not downgrade
@@ -45,36 +34,45 @@ On Windows:
 .\deploy\bootstrap.cmd
 ```
 
-The bootstrap shows any Docker installation action before requesting approval. On macOS it
-can install and start Docker Desktop through Homebrew; on Windows it can install and start
-Docker Desktop through `winget`; on Linux it can install Docker Engine with Docker's
-official installer. If that package manager is unavailable, it provides the official
-manual-install URL. Tailscale and the application remain containers, so no host Python
-setup is needed. Docker stores the node identity in the named
-`tailscale-state` volume, so there is no reusable Tailscale auth key in `.env`.
+Bootstrap asks before installing Docker. It uses Homebrew on macOS, `winget` on Windows,
+and Docker's installer on Linux. If those options are unavailable, it prints the official
+installation URL. You do not need Python on the host.
 
-The Bring setup call only authenticates and lists names and UUIDs. One returned list is
-proposed but still requires confirmation. Multiple lists require an exact UUID. Bootstrap
-does not add, complete, or remove shopping items.
+Docker stores the Tailscale node identity in the `tailscale-state` volume. `.env` contains
+Bring credentials, the selected list UUID, and the MCP capability secret.
 
-If the immutable GHCR image cannot be pulled, bootstrap offers a local Docker build from
-the checked-out source. It never silently switches to a mutable `latest` tag.
+Bootstrap authenticates to Bring and lists names and UUIDs. You must confirm the exact
+target UUID. Bootstrap does not change shopping items.
+
+If Docker cannot pull the versioned image, bootstrap offers to build the checked-out source.
+
+## Connect an MCP client
+
+Run the status command and copy the printed HTTPS MCP URL into your client's remote MCP
+server settings:
+
+```bash
+./deploy/status.sh
+```
+
+On Windows, run `deploy\status.cmd`. Select no additional authentication when the client
+requires an authentication choice. The secret in the URL protects the endpoint.
+
+Confirm that the client exposes these tools: list lists, read items, add items, complete
+items, and remove items. Do not paste the URL into chat, logs, screenshots, or issue
+reports. Run the capability rotation command if you expose it.
 
 ## Routine operations
 
 macOS and Linux:
 
 ```bash
-# Containers plus private MCP initialization check
 ./deploy/status.sh
 
-# Follow bounded local logs
 docker compose logs --follow app
 
-# Stop without deleting identity or configuration
 docker compose down
 
-# Start again
 docker compose up -d
 ```
 
@@ -100,9 +98,9 @@ Windows:
 .\deploy\update.cmd 1.1.1
 ```
 
-The script pulls the pinned image, recreates only the application container, performs a
-real MCP initialize/list-tools check over loopback, and restores the previous image setting
-if any step fails. Tailscale identity and the capability URL are unchanged.
+The script pulls the versioned image, recreates the application container, checks MCP over
+loopback, and restores the previous image setting on failure. It preserves Tailscale
+identity and the capability URL.
 
 ## Rotate a leaked capability
 
@@ -118,8 +116,8 @@ Windows:
 .\deploy\rotate-capability.cmd
 ```
 
-Rotation has no grace period: the old URL stops working as soon as the application is
-recreated. The command prints only the new URL and the ChatGPT reconfiguration steps.
+The old URL stops working when the application restarts. Update the MCP client with the new
+URL printed by the command.
 
 ## Security model
 
@@ -139,8 +137,8 @@ MCP_HTTP_RATE_BURST=30
 MCP_HTTP_MAX_CONCURRENCY=4
 ```
 
-The HTTP transport is stateless and returns JSON. It intentionally has no public health,
-metrics, discovery, or landing-page endpoint. `deploy/status.sh` validates MCP privately.
+The HTTP transport returns JSON and exposes no public health, metrics, discovery, or
+landing-page endpoint. `deploy/status.sh` checks MCP through the private container network.
 
 ## Troubleshooting
 
@@ -150,8 +148,8 @@ metrics, discovery, or landing-page endpoint. `deploy/status.sh` validates MCP p
 - App is unhealthy: run `docker compose logs app`; credentials and capability values must
   never be pasted into an issue.
 - Bring login fails for a social-login account: set a Bring password in the Bring app.
-- ChatGPT connects but cannot write: check the current ChatGPT plan support. Developer mode
-  visibility alone may not grant write-capable custom MCP tools.
+- The MCP client connects but cannot write: confirm that it permits write-capable custom
+  MCP tools.
 - To discard the Tailscale identity, first remove the device in the Tailscale admin console,
   then deliberately run `docker compose down --volumes`. This is destructive and is never
   done by the provided scripts.

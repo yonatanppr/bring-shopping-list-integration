@@ -5,4 +5,4 @@ Set-StrictMode -Version Latest
 Assert-Deployment
 Invoke-DockerCompose -ComposeArgs @("ps")
 Invoke-PrivateSmoke
-Write-ChatGptSteps (Get-Capability)
+Write-ClientUrl (Get-Capability)

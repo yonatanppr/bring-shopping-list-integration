@@ -7,5 +7,5 @@ $newCapability = New-Capability
 Set-EnvValue "MCP_CAPABILITY" $newCapability
 Invoke-DockerCompose -ComposeArgs @("up", "-d", "--force-recreate", "app")
 Invoke-PrivateSmoke
-Write-Host "The old MCP URL is invalid. Reconfigure ChatGPT immediately:"
-Write-ChatGptSteps $newCapability
+Write-Host "The old MCP URL is invalid. Update the MCP client:"
+Write-ClientUrl $newCapability

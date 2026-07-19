@@ -123,7 +123,7 @@ function Invoke-PrivateSmoke {
     $output | ForEach-Object { Write-Host $_ }
 }
 
-function Write-ChatGptSteps {
+function Write-ClientUrl {
     param([string]$Capability)
 
     $baseUrl = Get-PublicBaseUrl
@@ -134,11 +134,8 @@ function Write-ChatGptSteps {
         return
     }
     Write-Host ""
-    Write-Host "ChatGPT setup (developer mode):"
-    Write-Host "  1. Settings -> Apps & Connectors -> Create."
-    Write-Host "  2. Use this MCP server URL: $baseUrl/$Capability/mcp"
-    Write-Host "  3. Choose No Authentication. The unguessable URL is the credential."
-    Write-Host "  4. Never paste or publish that URL anywhere else."
+    Write-Host "MCP server URL: $baseUrl/$Capability/mcp"
+    Write-Host "The URL is a credential. Do not paste it into chat, logs, or issue reports."
 }
 
 function Assert-Deployment {

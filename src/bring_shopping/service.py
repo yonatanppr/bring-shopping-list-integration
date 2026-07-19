@@ -47,7 +47,7 @@ class BringApi(Protocol):
 
 
 class BringShoppingService:
-    """Expose deterministic list and item operations for CLI and future MCP tools."""
+    """Expose deterministic list and item operations to the CLI and MCP servers."""
 
     def __init__(
         self,
